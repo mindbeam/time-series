@@ -1,6 +1,9 @@
 use std::convert::TryInto;
 use std::sync::{Arc, Mutex};
 
+use futures::stream::futures_unordered::Iter;
+use sled::IVec;
+
 #[derive(Clone)]
 pub struct Store {
     inner: Arc<Mutex<Inner>>,
@@ -39,7 +42,12 @@ impl Store {
     }
 
     pub fn add_event(&self, event: Vec<u8>) {
+        println!("Added Event: {}", String::from_utf8_lossy(&event));
         self.inner.lock().unwrap().add_event(event)
+    }
+
+    pub fn iter(&self) -> impl Iterator<Item = Result<(IVec, IVec), sled::Error>> {
+        self.inner.lock().unwrap().events.iter()
     }
 }
 

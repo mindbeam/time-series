@@ -1,4 +1,6 @@
 use futures::StreamExt;
+pub use futures_timer::Delay;
+use std::time::Duration;
 use tokio::io::AsyncWriteExt;
 use tokio_tungstenite::connect_async;
 use url::Url;
@@ -34,16 +36,32 @@ impl Hubitat {
         Hubitat { url, store }
     }
     pub async fn run(&self) {
-        let (ws_stream, _) = connect_async(&self.url).await.expect("Failed to connect");
-        println!("WebSocket handshake has been successfully completed");
+        loop {
+            println!("Connecting to Hubitat...");
+            match connect_async(&self.url).await {
+                Ok((ws_stream, _)) => {
+                    println!("WebSocket handshake has been successfully completed");
 
-        let (write, read) = ws_stream.split();
+                    let (write, read) = ws_stream.split();
 
-        read.for_each(|message| async {
-            let data = message.unwrap().into_data();
-            tokio::io::stdout().write_all(&data).await.unwrap();
-            self.store.add_event(data);
-        })
-        .await;
+                    println!("Connected to Hubitat");
+
+                    read.for_each(|message| async {
+                        match message {
+                            Ok(m) => {
+                                self.store.add_event(m.into_data());
+                            }
+                            Err(e) => println!("Hubitat Message Error: {:?}", e),
+                        }
+                    })
+                    .await;
+                }
+                Err(e) => {
+                    println!("Hubitat Connect Error: {:?}", e);
+                }
+            }
+
+            Delay::new(Duration::from_secs(2)).await
+        }
     }
 }
