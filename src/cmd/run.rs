@@ -4,7 +4,7 @@ use crate::{module::hubitat::Hubitat, store::Store};
 
 pub(crate) fn run(store: Store) -> Result<(), Box<dyn std::error::Error>> {
     // Create the runtime
-    let mut rt = Runtime::new()?;
+    let rt = Runtime::new()?;
 
     // Spawn the root task
     rt.block_on(async {

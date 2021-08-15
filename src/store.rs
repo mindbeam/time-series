@@ -30,7 +30,7 @@ impl Store {
 
         let last_event_id = events
             .last()
-            .map_or(0, |v| v.map_or(0, |(k, _)| read_ne_u64(&k)));
+            .map_or(0, |v| v.map_or(0, |(k, _)| read_be_u64(&k)));
 
         println!("(INIT) Last Event ID: {}", last_event_id);
         Ok(Store {
@@ -55,14 +55,14 @@ impl Inner {
     pub fn add_event(&mut self, mut event: Vec<u8>) {
         self.last_event_id += 1;
         let event_id = self.last_event_id;
-        println!("Last Event ID: {}", event_id);
+        println!("Last Event ID: {} / {:?}", event_id, event_id.to_be_bytes());
 
-        self.events.insert(event_id.to_ne_bytes(), event).unwrap();
+        self.events.insert(event_id.to_be_bytes(), event).unwrap();
     }
 }
 
-fn read_ne_u64(input: &[u8]) -> u64 {
+fn read_be_u64(input: &[u8]) -> u64 {
     let (int_bytes, _rest) = input.split_at(std::mem::size_of::<u64>());
     // *input = rest;
-    u64::from_ne_bytes(int_bytes.try_into().unwrap())
+    u64::from_be_bytes(int_bytes.try_into().unwrap())
 }
