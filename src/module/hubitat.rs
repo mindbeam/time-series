@@ -49,7 +49,10 @@ impl Hubitat {
                     read.for_each(|message| async {
                         match message {
                             Ok(m) => {
-                                self.store.add_event(m.into_data());
+                                let data = m.into_data();
+                                if data.len() > 0 {
+                                    self.store.add_event(data);
+                                }
                             }
                             Err(e) => println!("Hubitat Message Error: {:?}", e),
                         }
