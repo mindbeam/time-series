@@ -21,6 +21,10 @@ enum Command {
         #[structopt(parse(from_os_str))]
         file: PathBuf,
     },
+    Import {
+        #[structopt(parse(from_os_str))]
+        file: PathBuf,
+    },
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -32,6 +36,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     match opt.cmd {
         Command::Run => cmd::run::run(store)?,
         Command::Export { file } => cmd::export::export(store, file)?,
+        Command::Import { file } => cmd::import::import(store, file)?,
     };
 
     Ok(())

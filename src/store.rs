@@ -1,6 +1,7 @@
 use std::convert::TryInto;
 use std::sync::{Arc, Mutex};
 
+use chrono::{DateTime, Utc};
 use futures::stream::futures_unordered::Iter;
 use sled::IVec;
 
@@ -55,6 +56,8 @@ impl Inner {
     pub fn add_event(&mut self, mut event: Vec<u8>) {
         self.last_event_id += 1;
         let event_id = self.last_event_id;
+
+        let utc: DateTime<Utc> = Utc::now();
         println!("Last Event ID: {} / {:?}", event_id, event_id.to_be_bytes());
 
         self.events.insert(event_id.to_be_bytes(), event).unwrap();
