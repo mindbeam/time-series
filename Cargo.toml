@@ -26,3 +26,4 @@ url= "2.2"
 tokio-tungstenite="0.14"
 futures-timer = "3.0.2"
 structopt = "0.3"
+strum = { version = "0.21", features = ["derive"] }
