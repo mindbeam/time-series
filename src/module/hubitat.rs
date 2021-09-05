@@ -4,7 +4,10 @@ use std::time::Duration;
 use tokio_tungstenite::connect_async;
 use url::Url;
 
-use crate::store::Store;
+use crate::{
+    module::hubitat::model::{Event, DTO},
+    store::Store,
+};
 
 pub mod model;
 
@@ -39,7 +42,18 @@ impl Hubitat {
                             Ok(m) => {
                                 let data = m.into_data();
                                 if data.len() > 0 {
-                                    self.store.add_event(data);
+                                    if let Ok(dto) = serde_json::from_slice::<DTO>(&data) {
+                                        // println!("{:?}", dto);
+                                        if let Ok(event) = Event::from_dto(dto) {
+                                            let encoded = bincode::serialize(&event).unwrap();
+                                            self.store.add_event(encoded);
+                                            println!("Added Event: {:?}", event);
+                                        } else {
+                                            println!("Dropped Event - Could not decode Event")
+                                        }
+                                    } else {
+                                        println!("Dropped Event - Could not decode DTO")
+                                    }
                                 }
                             }
                             Err(e) => println!("Hubitat Message Error: {:?}", e),

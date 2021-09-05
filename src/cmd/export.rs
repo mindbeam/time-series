@@ -5,7 +5,7 @@ use std::{
     path::PathBuf,
 };
 
-use crate::store::Store;
+use crate::{module::hubitat::model::Event, store::Store};
 
 pub(crate) fn export(store: Store, output_file: PathBuf) -> Result<(), std::io::Error> {
     let path = output_file.as_path();
@@ -20,10 +20,12 @@ pub(crate) fn export(store: Store, output_file: PathBuf) -> Result<(), std::io::
 
     for i in store.iter() {
         if let Ok((k, v)) = i {
+            let event: Event = bincode::deserialize(&v).unwrap();
+            let json = serde_json::to_vec(&event)?;
             file.write_vectored(&[
                 IoSlice::new(format!("{}", read_be_u64(&k)).as_bytes()),
                 IoSlice::new(b":"),
-                IoSlice::new(&v),
+                IoSlice::new(&json),
                 IoSlice::new(b"\n"),
             ])?;
         }

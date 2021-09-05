@@ -43,7 +43,6 @@ impl Store {
     }
 
     pub fn add_event(&self, event: Vec<u8>) {
-        println!("Added Event: {}", String::from_utf8_lossy(&event));
         self.inner.lock().unwrap().add_event(event)
     }
 
@@ -58,7 +57,7 @@ impl Inner {
         let event_id = self.last_event_id;
 
         let utc: DateTime<Utc> = Utc::now();
-        println!("Last Event ID: {} / {:?}", event_id, event_id.to_be_bytes());
+        println!("Last Event ID: {}", event_id);
 
         self.events.insert(event_id.to_be_bytes(), event).unwrap();
     }

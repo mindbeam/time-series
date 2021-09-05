@@ -36,10 +36,10 @@ pub(crate) fn import(store: Store, input_file: PathBuf) -> Result<(), std::io::E
 
 fn process_line(store: &Store, line: &str) -> Result<(), std::io::Error> {
     let dto: DTO = serde_json::from_str(line).unwrap();
-    println!("{:?}", dto);
+    // println!("{:?}", dto);
     let event = Event::from_dto(dto).unwrap();
     // set.insert(format!("{}: {}", dto.source, dto.name));
 
-    println!("{:?}", event);
+    // println!("{}", bincode::serialize(&event);
     Ok(())
 }
